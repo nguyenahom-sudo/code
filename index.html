@@ -2,146 +2,126 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trái Tim Trong Trái Tim</title>
+    <title>Trái Tim Hoàn Hảo</title>
     <style>
         body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #ffeef2;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        
-}
+            margin: 0; height: 100vh; display: flex; justify-content: center;
+            align-items: center; background-color: #ffeef2; overflow: hidden;
+            transition: background-color 0.5s ease; font-family: 'Arial', sans-serif;
+        }
 
-
-        /* Viền trái tim lớn nhất ngoài cùng */
+        /* Viền trái tim khổng lồ ngoài cùng */
         .outer-heart-border {
-            position: relative;
-            width: 450px;
-            height: 450px;
-            border: 5px solid #ff1493;
-            transform: rotate(-45deg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Cắt mọi thứ tràn ra ngoài viền trái tim này */
-            overflow: hidden; 
+            position: relative; width: 450px; height: 450px;
+            border: 5px solid #ff1493; transform: rotate(-45deg);
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; z-index: 1;
         }
-
         .outer-heart-border::before, .outer-heart-border::after {
-            content: "";
-            position: absolute;
-            width: 450px;
-            height: 450px;
-            border: 5px solid #ff1493;
-            border-radius: 50%;
-            box-sizing: border-box;
+            content: ""; position: absolute; width: 450px; height: 450px;
+            border: 5px solid #ff1493; border-radius: 50%; box-sizing: border-box;
         }
+        .outer-heart-border::before { top: -225px; left: -2.5px; }
+        .outer-heart-border::after { left: 222.5px; top: -2.5px; }
 
-        .outer-heart-border::before { top: -225px; left: -2.5px; border-bottom: none; border-right: none; }
-        .outer-heart-border::after { left: 222.5px; top: -2.5px; border-bottom: none; border-left: none; }
-
-        /* Trái tim lớn đứng im ở trung tâm */
+        /* Trái tim chính ở giữa */
         .big-heart {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            background-color: #ff1493;
-            /* Xoay ngược lại 0 độ vì nó đang nằm trong container đã xoay -45 độ */
-            transform: rotate(0deg); 
-            z-index: 10;
-            box-shadow: 0 0 30px rgba(255, 20, 147, 0.6);
+            position: absolute; width: 120px; height: 120px;
+            background-color: #ff1493; z-index: 10;
+            transform: rotate(0deg); /* Xoay lại để đứng thẳng */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; box-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
         }
-
+        .big-heart:hover { transform: rotate(45deg) scale(1.2); }
         .big-heart::before, .big-heart::after {
-            content: "";
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            background-color: #ff1493;
-            border-radius: 50%;
+            content: ""; position: absolute; width: 120px; height: 120px;
+            background-color: #ff1493; border-radius: 50%;
         }
-
         .big-heart::before { top: -60px; left: 0; }
         .big-heart::after { left: 60px; top: 0; }
 
         .text {
-            position: absolute;
-            z-index: 11;
-            color: white;
-            transform: rotate(45deg);
-            text-align: center;
-            width: 100%;
-            top: 35%;
-            font-weight: bold;
-            font-size: 20px;
+            position: absolute; z-index: 11; color: white;
+            text-align: center; width: 100%; top: 35%;
+            font-weight: bold; font-size: 18px; pointer-events: none;
         }
 
-        /* Trái tim nhỏ rơi bên trong */
+        /* Trái tim nhỏ rơi */
         .small-heart {
-            position: absolute;
-            background-color: #ff69b4;
-            transform: rotate(0deg); /* Đồng bộ với container */
-            opacity: 0.7;
-            z-index: 5;
+            position: absolute; background-color: #ff69b4;
+            transform: rotate(0deg); opacity: 0.6; z-index: 5;
         }
-
         .small-heart::before, .small-heart::after {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: inherit;
-            border-radius: 50%;
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-color: inherit; border-radius: 50%;
         }
-
         .small-heart::before { top: -50%; left: 0; }
         .small-heart::after { left: 50%; top: 0; }
 
         @keyframes fall {
-            0% { transform: translate(0, -50px) scale(0.5); opacity: 1; }
-            100% { transform: translate(0, 500px) scale(1); opacity: 0; }
+            0% { transform: translateY(-50px) scale(0.5); opacity: 0.8; }
+            100% { transform: translateY(500px) scale(1.2); opacity: 0; }
+        }
+
+        /* Pháo hoa hạt */
+        .particle {
+            position: absolute; width: 6px; height: 6px;
+            border-radius: 50%; pointer-events: none; z-index: 100;
+        }
+        @keyframes explode {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
         }
     </style>
 </head>
-<body>
+<body onclick="createFirework(event)">
 
     <div class="outer-heart-border" id="container">
         <div class="big-heart">
-            <div class="text">CMMmmm</div>
+            <div class="text">MÃI YÊU</div>
         </div>
-
     </div>
 
     <script>
         const container = document.getElementById('container');
+        const bgColors = ['#ffeef2', '#fce4ec', '#f8bbd0', '#f48fb1'];
+        let colorIdx = 0;
 
+        // 1. Tạo trái tim nhỏ rơi liên tục bên trong viền
         function createSmallHeart() {
             const heart = document.createElement('div');
             heart.classList.add('small-heart');
-            
-            const size = Math.random() * 12 + 8 + "px";
+            const size = Math.random() * 10 + 8 + "px";
             heart.style.width = size;
             heart.style.height = size;
-
-            // Vị trí rơi ngẫu nhiên bên trong viền
             heart.style.left = Math.random() * 100 + "%";
-            heart.style.top = "-50px";
-            
-            const duration = Math.random() * 3 + 2 + "s";
-            heart.style.animation = `fall ${duration} linear forwards`;
-
+            heart.style.top = "-20px";
+            heart.style.animation = `fall ${Math.random() * 2 + 3}s linear forwards`;
             container.appendChild(heart);
-
-            setTimeout(() => {
-                heart.remove();
-            }, 4000);
+            setTimeout(() => heart.remove(), 4000);
         }
+        setInterval(createSmallHeart, 200);
 
-        setInterval(createSmallHeart, 150);
+        // 2. Hiệu ứng click: Pháo hoa + Đổi màu nền
+        function createFirework(e) {
+            colorIdx = (colorIdx + 1) % bgColors.length;
+            document.body.style.backgroundColor = bgColors[colorIdx];
+
+            for (let i = 0; i < 15; i++) {
+                const p = document.createElement('div');
+                p.classList.add('particle');
+                p.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                p.style.left = e.clientX + 'px';
+                p.style.top = e.clientY + 'px';
+                const tx = (Math.random() - 0.5) * 200 + 'px';
+                const ty = (Math.random() - 0.5) * 200 + 'px';
+                p.style.setProperty('--tx', tx);
+                p.style.setProperty('--ty', ty);
+                p.style.animation = `explode 0.8s forwards`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 800);
+            }
+        }
     </script>
 </body>
 </html>
