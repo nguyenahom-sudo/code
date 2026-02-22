@@ -2,28 +2,29 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trái Tim Hoàn Hảo</title>
+    <title>Album Ký ức Tình Yêu</title>
     <style>
         body {
-            margin: 0; height: 100vh; display: flex; justify-content: center;
-            align-items: center; background-color: #ffeef2; overflow: hidden;
-            transition: background-color 0.5s ease; font-family: 'Arial', sans-serif;
+            margin: 0; height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; background-color: #ffeef2;
+            overflow: hidden; font-family: 'Arial', sans-serif; transition: 0.5s;
         }
 
-        /* Viền trái tim khổng lồ ngoài cùng */
+        /* Viền trái tim lớn */
         .outer-heart-border {
-            position: relative; width: 450px; height: 450px;
-            border: 5px solid #ff1493; transform: rotate(-45deg);
+            position: relative; width: 420px; height: 420px;
+            border: 4px solid #ff1493; transform: rotate(-45deg);
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; z-index: 1;
+            overflow: hidden; z-index: 2;
         }
         .outer-heart-border::before, .outer-heart-border::after {
-            content: ""; position: absolute; width: 450px; height: 450px;
-            border: 5px solid #ff1493; border-radius: 50%; box-sizing: border-box;
+            content: ""; position: absolute; width: 420px; height: 420px;
+            border: 4px solid #ff1493; border-radius: 50%;
         }
-        .outer-heart-border::before { top: -225px; left: -2.5px; }
-        .outer-heart-border::after { left: 222.5px; top: -2.5px; }
+        .outer-heart-border::before { top: -210px; left: 0; }
+        .outer-heart-border::after { left: 210px; top: 0; }
 
+        /* Trái tim chính */
         /* Trái tim chính ở giữa */
         .big-heart {
             position: absolute; width: 120px; height: 120px;
@@ -46,82 +47,111 @@
             font-weight: bold; font-size: 18px; pointer-events: none;
         }
 
-        /* Trái tim nhỏ rơi */
-        .small-heart {
-            position: absolute; background-color: #ff69b4;
-            transform: rotate(0deg); opacity: 0.6; z-index: 5;
+        /* Album ảnh hiện ra */
+        .memory-photo {
+            position: absolute; width: 200px; height: auto;
+            border: 10px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 100; pointer-events: none; opacity: 0;
+            transform: translate(-50%, -50%) rotate(0deg);
+            left: 50%; top: 50%;
         }
-        .small-heart::before, .small-heart::after {
-            content: ""; position: absolute; width: 100%; height: 100%;
-            background-color: inherit; border-radius: 50%;
+
+        @keyframes showPhoto {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-10deg); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1) rotate(0deg); }
         }
+
+        .timer { margin-top: 20px; font-size: 22px; color: #d81b60; font-weight: bold; z-index: 5; }
+        #typing-text { margin-top: 10px; font-size: 18px; color: #ad1457; font-style: italic; z-index: 5; }
+         /* Hiệu ứng hạt rơi & vệt sáng */
+        .small-heart { position: absolute; background-color: #ff69b4; transform: rotate(0deg); opacity: 0.6; z-index: 1; }
+        .small-heart::before, .small-heart::after { content: ""; position: absolute; width: 100%; height: 100%; background-color: inherit; border-radius: 50%; }
         .small-heart::before { top: -50%; left: 0; }
         .small-heart::after { left: 50%; top: 0; }
+        
+        @keyframes fall { to { transform: translateY(500px); opacity: 0; } }
+        
+        .trail { position: absolute; width: 10px; height: 10px; background: #ff1493; border-radius: 50%; pointer-events: none; animation: fade 0.5s forwards; z-index: 100; }
+        @keyframes fade { to { transform: scale(2); opacity: 0; } }
 
-        @keyframes fall {
-            0% { transform: translateY(-50px) scale(0.5); opacity: 0.8; }
-            100% { transform: translateY(500px) scale(1.2); opacity: 0; }
-        }
-
-        /* Pháo hoa hạt */
-        .particle {
-            position: absolute; width: 6px; height: 6px;
-            border-radius: 50%; pointer-events: none; z-index: 100;
-        }
-        @keyframes explode {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
+        /* Trái tim nhỏ rơi */
+        .small-heart { position: absolute; background-color: #ff69b4; opacity: 0.6; z-index: 1; }
+        .small-heart::before, .small-heart::after { content: ""; position: absolute; width: 100%; height: 100%; background-color: inherit; border-radius: 50%; }
+        .small-heart::before { top: -50%; left: 0; }
+        .small-heart::after { left: 50%; top: 0; }
+        @keyframes fall { to { transform: translateY(500px); opacity: 0; } }
     </style>
 </head>
-<body onclick="createFirework(event)">
+<body>
 
     <div class="outer-heart-border" id="container">
-        <div class="big-heart">
-            <div class="text">MÃI YÊU</div>
-        </div>
+        <div class="big-heart" onclick="showNextPhoto()"></div>
     </div>
 
+    <div class="timer" id="love-timer"></div>
+    <div id="typing-text"></div>
+
     <script>
-        const container = document.getElementById('container');
-        const bgColors = ['#ffeef2', '#fce4ec', '#f8bbd0', '#f48fb1'];
-        let colorIdx = 0;
+        // --- CÀI ĐẶT ---
+        const startDate = new Date('2024-09-02'); // Sửa ngày yêu
+        const message = "Mỗi khoảnh khắc bên cậu đều là vô giá... ❤️";
+        const photos = ['anh1.jpg', 'anh2.jpg', 'anh3.jpg']; // Tên các file ảnh của bạn
+        let currentPhoto = 0;
 
-        // 1. Tạo trái tim nhỏ rơi liên tục bên trong viền
-        function createSmallHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('small-heart');
-            const size = Math.random() * 10 + 8 + "px";
-            heart.style.width = size;
-            heart.style.height = size;
-            heart.style.left = Math.random() * 100 + "%";
-            heart.style.top = "-20px";
-            heart.style.animation = `fall ${Math.random() * 2 + 3}s linear forwards`;
-            container.appendChild(heart);
-            setTimeout(() => heart.remove(), 4000);
+        // 1. Đồng hồ đếm ngày
+        function updateTimer() {
+            const diff = new Date() - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('love-timer').innerText = `Đã bên nhau ${days} ngày`;
         }
-        setInterval(createSmallHeart, 200);
+        setInterval(updateTimer, 1000);
 
-        // 2. Hiệu ứng click: Pháo hoa + Đổi màu nền
-        function createFirework(e) {
-            colorIdx = (colorIdx + 1) % bgColors.length;
-            document.body.style.backgroundColor = bgColors[colorIdx];
+        // 2. Hiện ảnh khi click
+        function showNextPhoto() {
+            const img = document.createElement('img');
+            img.src = photos[currentPhoto];
+            img.className = 'memory-photo';
+            img.style.animation = 'showPhoto 3s forwards';
+            document.body.appendChild(img);
 
-            for (let i = 0; i < 15; i++) {
-                const p = document.createElement('div');
-                p.classList.add('particle');
-                p.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
-                p.style.left = e.clientX + 'px';
-                p.style.top = e.clientY + 'px';
-                const tx = (Math.random() - 0.5) * 200 + 'px';
-                const ty = (Math.random() - 0.5) * 200 + 'px';
-                p.style.setProperty('--tx', tx);
-                p.style.setProperty('--ty', ty);
-                p.style.animation = `explode 0.8s forwards`;
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 800);
+            currentPhoto = (currentPhoto + 1) % photos.length;
+            
+            setTimeout(() => img.remove(), 3000); // Xóa ảnh sau khi mờ đi
+        }
+
+        // 3. Gõ chữ
+        let index = 0;
+        function typeWriter() {
+            if (index < message.length) {
+                document.getElementById('typing-text').innerHTML += message.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100);
             }
         }
+        window.onload = () => { updateTimer(); typeWriter(); };
+
+        // 4. Mưa tim rơi
+        setInterval(() => {
+            const h = document.createElement('div');
+            h.classList.add('small-heart');
+            const size = Math.random() * 10 + 5 + "px";
+            h.style.width = size; h.style.height = size;
+            h.style.left = Math.random() * 100 + "%";
+            h.style.top = "-20px";
+            h.style.animation = `fall ${Math.random() * 2 + 3}s linear forwards`;
+            container.appendChild(h);
+            setTimeout(() => h.remove(), 4000);
+        }, 300);
+         // 5. Vệt sáng theo chuột
+        window.addEventListener('mousemove', (e) => {
+            const t = document.createElement('div');
+            t.className = 'trail';
+            t.style.left = e.pageX + 'px';
+            t.style.top = e.pageY + 'px';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 500);
+        });
     </script>
 </body>
 </html>
