@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trái Tim Trong Trái Tim</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffeef2;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        
+}
+
+
+        /* Viền trái tim lớn nhất ngoài cùng */
+        .outer-heart-border {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            border: 5px solid #ff1493;
+            transform: rotate(-45deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Cắt mọi thứ tràn ra ngoài viền trái tim này */
+            overflow: hidden; 
+        }
+
+        .outer-heart-border::before, .outer-heart-border::after {
+            content: "";
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border: 5px solid #ff1493;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        .outer-heart-border::before { top: -225px; left: -2.5px; border-bottom: none; border-right: none; }
+        .outer-heart-border::after { left: 222.5px; top: -2.5px; border-bottom: none; border-left: none; }
+
+        /* Trái tim lớn đứng im ở trung tâm */
+        .big-heart {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: #ff1493;
+            /* Xoay ngược lại 0 độ vì nó đang nằm trong container đã xoay -45 độ */
+            transform: rotate(0deg); 
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.6);
+        }
+
+        .big-heart::before, .big-heart::after {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: #ff1493;
+            border-radius: 50%;
+        }
+
+        .big-heart::before { top: -60px; left: 0; }
+        .big-heart::after { left: 60px; top: 0; }
+
+        .text {
+            position: absolute;
+            z-index: 11;
+            color: white;
+            transform: rotate(45deg);
+            text-align: center;
+            width: 100%;
+            top: 35%;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* Trái tim nhỏ rơi bên trong */
+        .small-heart {
+            position: absolute;
+            background-color: #ff69b4;
+            transform: rotate(0deg); /* Đồng bộ với container */
+            opacity: 0.7;
+            z-index: 5;
+        }
+
+        .small-heart::before, .small-heart::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: inherit;
+            border-radius: 50%;
+        }
+
+        .small-heart::before { top: -50%; left: 0; }
+        .small-heart::after { left: 50%; top: 0; }
+
+        @keyframes fall {
+            0% { transform: translate(0, -50px) scale(0.5); opacity: 1; }
+            100% { transform: translate(0, 500px) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="outer-heart-border" id="container">
+        <div class="big-heart">
+            <div class="text">LOVE</div>
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+
+        function createSmallHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('small-heart');
+            
+            const size = Math.random() * 12 + 8 + "px";
+            heart.style.width = size;
+            heart.style.height = size;
+
+            // Vị trí rơi ngẫu nhiên bên trong viền
+            heart.style.left = Math.random() * 100 + "%";
+            heart.style.top = "-50px";
+            
+            const duration = Math.random() * 3 + 2 + "s";
+            heart.style.animation = `fall ${duration} linear forwards`;
+
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        setInterval(createSmallHeart, 150);
+    </script>
+    <div class="text" style="color: rgb(250, 75, 203);">thử xem QR có chạy không thuii</div>
+</body>
+</html>
